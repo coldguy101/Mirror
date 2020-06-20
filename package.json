@@ -1,0 +1,20 @@
+{
+  "name": "mirror",
+  "version": "1.0.0",
+  "description": "JavaScript CLI to mirror all configuration files to their relative location to your home directory, while also handling changed files in the destination.",
+  "main": "index.js",
+  "bin": {
+    "mirror": "./index.js"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Sean Lavoie",
+  "license": "MIT",
+  "dependencies": {
+    "colors": "^1.4.0",
+    "commander": "^5.1.0",
+    "diff": "^4.0.2",
+    "inquirer": "^7.2.0"
+  }
+}
