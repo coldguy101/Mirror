@@ -27,6 +27,15 @@ function copyFile(srcFilePath, dstFilePath) {
  * @returns {Array<ChangeObject>} differences
  */
 function getDiff(firstFilePath, secondFilePath, diffMethod) {
+  if(!fs.existsSync(firstFilePath)) {
+    console.error("File, '%s', does not exist".red, firstFilePath);
+    process.exit();
+  }
+  if (!fs.existsSync(secondFilePath)) {
+    console.error("File, '%s', does not exist".red, secondFilePath);
+    process.exit();
+  }
+  
   var firstFileData = fs.readFileSync(firstFilePath).toString();
   var secondFileData = fs.readFileSync(secondFilePath).toString();
 
