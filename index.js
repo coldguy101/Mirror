@@ -5,6 +5,7 @@
 * Date: Fri, Jun 19, 2020
 */
 
+const fs = require('fs');
 const path = require('path');
 
 require('colors');
@@ -23,32 +24,51 @@ commander
   .option('-m, --method [diffMethod]', 'Diffing method to use, options: chars, words, lines', 'chars')
   .description('Mirror srcFile with dstFile, showing differences and prompting for user input before overwriting')
   .action((srcFile, dstFile) => {
-    var differences = mirror.getDiff(srcFile, dstFile, commander.method);
-    if (commander.diff) {
-      mirror.printDiff(differences);
+    if (!fs.existsSync(dstFile)) {
+      inquirer
+        .prompt([{
+          type: 'confirm',
+          name: 'create',
+          message: dstFile + ' does not exist, create?',
+          default: true
+        }])
+        .then((answer) => {
+          if (answer.create) {
+            mirror.copyFile(srcFile, dstFile);
+          } else {
+            console.log("File not created".cyan);
+          }
+        }
+      );
     } else {
-      if (differences.length == 1) {
-        // If the differences array is of size 1, the files are identical
-        console.log("Files '%s' and '%s' are identical".cyan, srcFile, dstFile);
+      var differences = mirror.getDiff(srcFile, dstFile, commander.method);
+      if (commander.diff) {
+        mirror.printDiff(differences);
       } else {
-        if (commander.force) {
-          mirror.copyFile(srcFile, dstFile);
+        if (differences.length == 1) {
+          // If the differences array is of size 1, the files are identical
+          console.log("Files '%s' and '%s' are identical".cyan, srcFile, dstFile);
         } else {
-          mirror.printDiff(differences);
-          inquirer
-            .prompt([{
-              type: 'confirm',
-              name: 'overwrite',
-              message: 'Are you sure you want to overwrite this file?',
-              default: false
-            }])
-            .then((answer) => {
-              if (answer.overwrite) {
-                mirror.copyFile(srcFile, dstFile);
-              } else {
-                console.log("Files not mirrored".cyan);
+          if (commander.force) {
+            mirror.copyFile(srcFile, dstFile);
+          } else {
+            mirror.printDiff(differences);
+            inquirer
+              .prompt([{
+                type: 'confirm',
+                name: 'overwrite',
+                message: 'Are you sure you want to overwrite this file?',
+                default: false
+              }])
+              .then((answer) => {
+                if (answer.overwrite) {
+                  mirror.copyFile(srcFile, dstFile);
+                } else {
+                  console.log("Files not mirrored".cyan);
+                }
               }
-            })
+            );
+          }
         }
       }
     }
